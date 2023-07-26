@@ -4,6 +4,9 @@ Slip, slip deficit, or coupling distributions along meshed faults are sensitive 
 ## An example detailed workflow using a North Anatolian Fault
 Resolution tests are not "a run one script/notebook and you get results" type of calculation.  Rather, they are accomplished through a series of steps that provide for a great deal of flexibility.  Below are the details for a specific case using the a North Anatolian fault model as an example
 
+0. Create synthetic NAF slip/slip deficit distribution for resolution tests (new notebook named `NNN`)
+   - Read NAF mesh geometry and boundary conditions using mesh parameters file `NNN` and triangulated geometry from `NNN`.
+
 1. Generate synthetic surface velocities
     - Identify a reference block model.
         - command file name: `NNN`
