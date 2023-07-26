@@ -9,6 +9,7 @@
 * [[Triangular elements]]
 
 **[[Running celeri]]**
+* [[Workflow for resolution tests]]
 
 **Analyzing results**
 * [[Results overview]]
