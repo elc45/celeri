@@ -5,6 +5,15 @@ Slip, slip deficit, or coupling distributions along meshed faults are sensitive 
 Resolution tests are not "a run one script/notebook and you get results" type of calculation.  Rather, they are accomplished through a series of steps that provide for a great deal of flexibility.  Below are the details for a specific case using the a North Anatolian fault model as an example
 
 1. Generate synthetic surface velocities
+    - Identify a reference block model.
+        - command file name: `NNN`
+        - velocity file name: `NNN`
+        - block file name: `NNN`
+        - segment file name: `NNN`
+        - mesh parameters file name: `NNN`
+        - NAF mesh file name: `NNN`
+        - driver notebook file name: `NNN`
+
     - Run an inverse block model with real data
         - Take block motions from the state vector
         - Construct a new state vector with the estimated block motions and a new NAF slip deficit distribution.  This becomes the known truth that we want to estimate
