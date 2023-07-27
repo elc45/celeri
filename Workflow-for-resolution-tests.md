@@ -6,6 +6,15 @@ Resolution tests are not "a run one script/notebook and you get results" type of
 
 0. Create synthetic NAF slip/slip deficit distribution for resolution tests (new notebook named `NNN`)
    - Read NAF mesh geometry and boundary conditions using mesh parameters file `NNN` and triangulated geometry from `NNN`.
+   - Generate synthetic slip/slip displacement vectors in multiple scenarios including but not limited to,
+       - NAF completely locked.
+       - NAF completely locked except for Marmara.
+       - NAF completely locked except for shallow Marmara.
+       - NAF completely locked except for deep Marmara.
+       - NAF completely locked except for donut Marmara.
+       - NAF checkerboards at various wavelengths.  The checkerboard should be a slipping/not slipping pattern.
+   - Plot each of these.
+   - Write each of these to either a `.npy` or `.csv` file with descriptive names.  They will be used below.
 
 1. Generate synthetic surface velocities
     - Identify a reference block model (RBM).
@@ -30,19 +39,15 @@ Resolution tests are not "a run one script/notebook and you get results" type of
             - With the indices found above, set the state vector indices associated with the NAF slip elements to the values from generated in part `0`.  This is where the synthetic values are integrated into the block model.
         - Calculate noise-free synthetic velocities by doing the matrix-vector multiply between this modified state vector and the linear system operator, `estimation.operator`.
         - Add noise to synthetic surface velocities.
-            - Add different realizations of Gaussian noise.
+            - Add different realizations of Gaussian noise (including zero).
             - Add different levels Gaussian noise.
             - Write each of these sets of predicted velocities to a `*_station.csv` file.
 
 2. Run a block model not with the real data but with the synthetic surface velocities
     - A new command file should be used here and named, `NNN`.  It should include information to reuse the previous elastic kernel with the command file flags: `"reuse_elastic": 1` and `"reuse_elastic_file": "../data/operators/*_elastic_operators.hdf5",` the latter of which should point to the output `hdf5` file produced by the model run in step 1 above.  This file contains the elastic partial derivatives.
-    - These should be stored as a `.csv` file, just like a regular velocity file.
-    - Systematically document how well the synthetic NAF slip deficit distribution can be inferred.  We have a synthetic truth here, so we can quantify this exactly!
+    - The velocities for this run should be from one of the `*_station.csv` files created in step `1`.
+    - Examine estimated slip deficit rates on the NAF (compare with synthetic input slip/slip deficit distribution)
+        - Qualitatively (including visually) describe the extent to which the true synthetic feature are, and are not, resolved.
+        - Calculate MAE and MSE between true synthetic and estimated as a function of noise level.
 
 3. Repeat the above with various synthetic slip deficit distributions, including (but not limited to):
-    - NAF completely locked
-    - NAF completely locked except for Marmara
-    - NAF completely locked except for shallow Marmara
-    - NAF completely locked except for deep Marmara
-    - NAF completely locked except for donut Marmara
-    - NAF checkerboards at various resolutions (not because it's informative but because reviewers always ask for this)
