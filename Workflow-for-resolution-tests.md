@@ -8,7 +8,7 @@ Resolution tests are not "a run one script/notebook and you get results" type of
    - Read NAF mesh geometry and boundary conditions using mesh parameters file `NNN` and triangulated geometry from `NNN`.
 
 1. Generate synthetic surface velocities
-    - Identify a reference block model.
+    - Identify a reference block model (RBM).
         - command file name: `NNN`
         - velocity file name: `NNN`
         - block file name: `NNN`
@@ -17,8 +17,10 @@ Resolution tests are not "a run one script/notebook and you get results" type of
         - NAF mesh file name: `NNN`
         - driver notebook file name: `NNN`
 
-    - Run an inverse block model with real data
-        - Take block motions from the state vector
+    - Run RBM estimation with real data
+        - Make sure to save elastic kernels with NNN setting in command file.  This will ensure that the elastic kernels are saved and don't have to be recomputed for every model run.  This is valid so long as the model geometry (including meshes) do not change.
+        - Save state vector (`estimation.state_vector`) explicitly in a numpy (`.npy`) file with the name `NNN`.
+        - Create a new notebook for running resolution tests named `NNN`.
         - Construct a new state vector with the estimated block motions and a new NAF slip deficit distribution.  This becomes the known truth that we want to estimate
     - Take state vector and synthetic state vector to predict noise-free synthetic velocities
     - Add noise to synthetic surface velocities
