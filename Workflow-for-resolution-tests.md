@@ -20,9 +20,11 @@ Resolution tests are not "a run one script/notebook and you get results" type of
     - Run RBM estimation with real data
         - Make sure to save elastic kernels with `"pickle_save": 1,`, `"save_elastic": 1,` and `"save_elastic_file": "../data/operators/*_elastic_operators.hdf5",` settings in the command file.  The latter should point to where you want to store the elastic partial derivatives.  This will ensure that the elastic kernels are saved and don't have to be recomputed for every model run.  This is valid so long as the model geometry (including meshes) do not change.  The `pickle_save` flag will store all data structures in a single pickle file that we'll reuse later.
         - Save state vector (`estimation.state_vector`) explicitly in a numpy (`.npy`) file with the name `NNN`.
+
+    - Take state vector and synthetic state vector to predict noise-free synthetic velocities
         - Create a new notebook for running resolution tests named `NNN`.
         - Construct a new state vector with the estimated block motions and a new NAF slip deficit distribution.  This becomes the known truth that we want to estimate
-    - Take state vector and synthetic state vector to predict noise-free synthetic velocities
+
     - Add noise to synthetic surface velocities
 2. Run a block model not with the real data but with the synthetic surface velocities.
     - A new command file should be used here and named, `NNN`.  It should include information to reuse the previous elastic kernel with the command file flags: `"reuse_elastic": 1` and `"reuse_elastic_file": "../data/operators/*_elastic_operators.hdf5",` the latter of which should point to the output `hdf5` file produced by the model run in step 1 above.  This file contains the elastic partial derivatives.
