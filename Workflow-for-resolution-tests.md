@@ -27,7 +27,7 @@ Resolution tests are not "a run one script/notebook and you get results" type of
         - Construct a state vector that includes slip/slip deficit estimates.
             - Load `estimation.state_vector`.
             - Identify state vector indices associated with NAF mesh.
-            - With the indices found above, set the state vector indices associated with the NAF slip elements to the values NNN.
+            - With the indices found above, set the state vector indices associated with the NAF slip elements to the values from generated in part `0`.  This is where the synthetic values are integrated into the block model.
         - Calculate noise-free synthetic velocities by doing the matrix-vector multiply between this modified state vector and the linear system operator, `estimation.operator`.
         - Add noise to synthetic surface velocities.
             - Add different levels Gaussian noise.
