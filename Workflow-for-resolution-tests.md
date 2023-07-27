@@ -29,6 +29,7 @@ Resolution tests are not "a run one script/notebook and you get results" type of
             - Identify state vector indices associated with NAF mesh.
             - With the indices found above, set the state vector indices associated with the NAF slip elements to the values NNN.
         - Construct a new state vector with the estimated block motions and a new NAF slip deficit distribution.  This becomes the known truth that we want to estimate
+        - Calculate noise-free synthetic velocities by doing the matrix-vector multiply between this modified state vector and the linear system operator, `estimation.operator`.
         - Add noise to synthetic surface velocities.
 
 2. Run a block model not with the real data but with the synthetic surface velocities.
