@@ -25,6 +25,7 @@ Resolution tests are not "a run one script/notebook and you get results" type of
     - Take state vector and synthetic state vector to predict noise-free synthetic velocities
     - Add noise to synthetic surface velocities
 2. Run a block model not with the real data but with the synthetic surface velocities.
+    - A new command file should be used here and named, `NNN`.  It should include information to reuse the previous elastic kernel with the command file flags: `"reuse_elastic": 1` and `"reuse_elastic_file": "../data/operators/*_elastic_operators.hdf5",` the latter of which should point to the output `hdf5` file produced by the model run in step 1 above.  This file contains the elastic partial derivatives.
     - These should be stored as a `.csv` file, just like a regular velocity file.
     - Systematically document how well the synthetic NAF slip deficit distribution can be inferred.  We have a synthetic truth here, so we can quantify this exactly!
 3. Repeat the above with various synthetic slip deficit distributions, including (but not limited to):
