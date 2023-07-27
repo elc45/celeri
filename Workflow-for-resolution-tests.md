@@ -50,4 +50,4 @@ Resolution tests are not "a run one script/notebook and you get results" type of
         - Qualitatively (including visually) describe the extent to which the true synthetic feature are, and are not, resolved.
         - Calculate MAE and MSE between true synthetic and estimated as a function of noise level.
 
-3. Repeat the above with various synthetic slip deficit distributions, including (but not limited to):
+3. Repeat the above with various synthetic slip deficit distributions noise levels
