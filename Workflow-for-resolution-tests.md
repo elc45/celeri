@@ -12,29 +12,29 @@ Resolution tests are not "a run one script/notebook and you get results" type of
 
        B. Most of NAF with a uniform slip deficit rate of 24 mm/yr.  Marmara with a top-to-bottom slip deficit rate of 0 mm/yr.
 
-       C. Most of NAF with a uniform slip deficit rate of 24 mm/yr.  Marmara with a top-to-bottom slip rate of 5 mm/yr.
+       C. Most of NAF with a uniform slip deficit rate of 24 mm/yr.  Marmara with a top-to-bottom slip rate of 5 mm/yr.  Note: sign should be the opposite of that used for the slip deficit.
 
        D. Most of NAF with a uniform slip deficit rate of 24 mm/yr.  Marmara with a shallow (<7 km) slip deficit rate of 0 mm/yr.
 
-       E. Most of NAF with a uniform slip deficit rate of 24 mm/yr.  Marmara with a shallow (<7 km) coseismic sense slip rate of 5 mm/yr.
+       E. Most of NAF with a uniform slip deficit rate of 24 mm/yr.  Marmara with a shallow (<7 km) coseismic sense slip rate of 5 mm/yr. Note: sign should be the opposite of that used for the slip deficit.
 
        F. Most of NAF with a uniform slip deficit rate of 24 mm/yr.  Marmara with a deep (>7 km) slip deficit rate of 0 mm/yr.
 
-       G. Most of NAF with a uniform slip deficit rate of 24 mm/yr.  Marmara with a deep (>7 km) coseismic sense slip rate of 5 mm/yr.
+       G. Most of NAF with a uniform slip deficit rate of 24 mm/yr.  Marmara with a deep (>7 km) coseismic sense slip rate of 5 mm/yr. Note: sign should be the opposite of that used for the slip deficit.
 
        H. NAF with random slip deficit rates varying from 0 to 24 mm/yr.
 
        I. Most of NAF with random slip deficit rates varying from 0 to 24 mm/yr.  Marmara with a top-to-bottom slip deficit rate of 0 mm/yr.
 
-       J. Most of NAF with random slip deficit rates varying from 0 to 24 mm/yr.  Marmara with a top-to-bottom slip rate of 5 mm/yr.
+       J. Most of NAF with random slip deficit rates varying from 0 to 24 mm/yr.  Marmara with a top-to-bottom slip rate of 5 mm/yr. Note: sign should be the opposite of that used for the slip deficit.
 
        K. Most of NAF with random slip deficit rates varying from 0 to 24 mm/yr.  Marmara with a shallow (<7 km) slip deficit rate of 0 mm/yr.
 
-       L. Most of NAF with random slip deficit rates varying from 0 to 24 mm/yr.  Marmara with a shallow (<7 km) coseismic sense slip rate of 5 mm/yr.
+       L. Most of NAF with random slip deficit rates varying from 0 to 24 mm/yr.  Marmara with a shallow (<7 km) coseismic sense slip rate of 5 mm/yr. Note: sign should be the opposite of that used for the slip deficit.
 
        M. Most of NAF with random slip deficit rates varying from 0 to 24 mm/yr.  Marmara with a deep (>7 km) slip deficit rate of 0 mm/yr.
 
-       N. Most of NAF with random slip deficit rates varying from 0 to 24 mm/yr.  Marmara with a deep (>7 km) coseismic sense slip rate of 5 mm/yr.
+       N. Most of NAF with random slip deficit rates varying from 0 to 24 mm/yr.  Marmara with a deep (>7 km) coseismic sense slip rate of 5 mm/yr. Note: sign should be the opposite of that used for the slip deficit.
 
        O. NAF checkerboard at 15 km x 15 km resolution with depth and along strike.  The checkerboard should be regions of slip deficit with values alternating between 0 and 24 mm/yr.
 
