@@ -8,7 +8,9 @@ Resolution tests are not "a run one script/notebook and you get results" type of
    - Read NAF mesh geometry and boundary conditions using mesh parameters file `NNN` and triangulated geometry from `NNN`.
    - Generate synthetic slip/slip displacement vectors in multiple scenarios including but not limited to,
        a. NAF with a uniform slip deficit rate of 24 mm/yr.
+
        b. Most of NAF with a uniform slip deficit rate of 24 mm/yr.  Marmara with a top-to-bottom slip deficit rate of 0 mm/yr.
+
        c. Most of NAF with a uniform slip deficit rate of 24 mm/yr.  Marmara with a top-to-bottom slip rate of 5 mm/yr.
        d. Most of NAF with a uniform slip deficit rate of 24 mm/yr.  Marmara with a shallow (<7 km) slip deficit rate of 0 mm/yr.
        e. Most of NAF with a uniform slip deficit rate of 24 mm/yr.  Marmara with a shallow (<7 km) coseismic sense slip rate of 5 mm/yr.
