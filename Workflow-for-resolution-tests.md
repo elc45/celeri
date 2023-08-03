@@ -7,12 +7,24 @@ Resolution tests are not "a run one script/notebook and you get results" type of
 0. Create synthetic NAF slip/slip deficit distribution for resolution tests (new notebook named `NNN`)
    - Read NAF mesh geometry and boundary conditions using mesh parameters file `NNN` and triangulated geometry from `NNN`.
    - Generate synthetic slip/slip displacement vectors in multiple scenarios including but not limited to,
-       - NAF completely locked.
-       - NAF completely locked except for Marmara.
-       - NAF completely locked except for shallow Marmara.
-       - NAF completely locked except for deep Marmara.
-       - NAF completely locked except for donut Marmara.
-       - NAF checkerboards at various wavelengths.  The checkerboard should be a slipping/not slipping pattern.
+       - NAF with a uniform slip deficit rate of 24 mm/yr.
+       - Most of NAF with a uniform slip deficit rate of 24 mm/yr.  Marmara with a top-to-bottom slip deficit rate of 0 mm/yr.
+       - Most of NAF with a uniform slip deficit rate of 24 mm/yr.  Marmara with a top-to-bottom slip rate of 5 mm/yr.
+       - Most of NAF with a uniform slip deficit rate of 24 mm/yr.  Marmara with a shallow (<7 km) slip deficit rate of 0 mm/yr.
+       - Most of NAF with a uniform slip deficit rate of 24 mm/yr.  Marmara with a shallow (<7 km) coseismic sense slip rate of 5 mm/yr.
+       - Most of NAF with a uniform slip deficit rate of 24 mm/yr.  Marmara with a deep (>7 km) slip deficit rate of 0 mm/yr.
+       - Most of NAF with a uniform slip deficit rate of 24 mm/yr.  Marmara with a deep (>7 km) coseismic sense slip rate of 5 mm/yr.
+       - NAF with random slip deficit rates varying from 0 to 24 mm/yr.
+       - Most of NAF with random slip deficit rates varying from 0 to 24 mm/yr.  Marmara with a top-to-bottom slip deficit rate of 0 mm/yr.
+       - Most of NAF with random slip deficit rates varying from 0 to 24 mm/yr.  Marmara with a top-to-bottom slip rate of 5 mm/yr.
+       - Most of NAF with random slip deficit rates varying from 0 to 24 mm/yr.  Marmara with a shallow (<7 km) slip deficit rate of 0 mm/yr.
+       - Most of NAF with random slip deficit rates varying from 0 to 24 mm/yr.  Marmara with a shallow (<7 km) coseismic sense slip rate of 5 mm/yr.
+       - Most of NAF with random slip deficit rates varying from 0 to 24 mm/yr.  Marmara with a deep (>7 km) slip deficit rate of 0 mm/yr.
+       - Most of NAF with random slip deficit rates varying from 0 to 24 mm/yr.  Marmara with a deep (>7 km) coseismic sense slip rate of 5 mm/yr.
+       - NAF checkerboard at 15 km x 15 km resolution with depth and along strike.  The checkerboard should be regions of slip deficit with values alternating between 0 and 24 mm/yr.
+       - NAF checkerboard at 10 km x 10 km resolution with depth and along strike.  The checkerboard should be regions of slip deficit with values alternating between 0 and 24 mm/yr.
+       - NAF checkerboard at 5 km x 5 km resolution with depth and along strike.  The checkerboard should be regions of slip deficit with values alternating between 0 and 24 mm/yr.
+
    - Plot each of these.
    - Write each of these to either a `.npy` or `.csv` file with descriptive names.  They will be used below.
 
