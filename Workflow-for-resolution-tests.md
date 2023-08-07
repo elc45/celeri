@@ -5,7 +5,7 @@ Slip, slip deficit, or coupling distributions along meshed faults are sensitive 
 Resolution tests are not "a run one script/notebook and you get results" type of calculation.  Rather, they are accomplished through a series of steps that provide for a great deal of flexibility.  Below are the details for a specific case using the a North Anatolian fault model as an example.
 
 0. Create synthetic NAF slip/slip deficit distribution for resolution tests (new notebook named `synthetic_slip_mesh_003.ipynb`)
-   - Read NAF mesh geometry and boundary conditions using mesh parameters file mesh_parameters_naf_eaf.json` and triangulated geometry from `mesh_test_4328`.
+   - Read NAF mesh geometry and boundary conditions using mesh parameters file `mesh_parameters_naf_eaf.json` and triangulated geometry from `mesh_test_4328`.
    - Generate synthetic slip/slip displacement vectors in multiple scenarios including but not limited to,
 
        A. NAF with a uniform slip deficit rate of 24 mm/yr.
