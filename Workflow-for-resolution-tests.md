@@ -43,7 +43,7 @@ Resolution tests are not "a run one script/notebook and you get results" type of
        Q. NAF checkerboard at 5 km x 5 km resolution with depth and along strike.  The checkerboard should be regions of slip deficit with values alternating between 0 and 24 mm/yr.
 
    - Plot each of these.
-   - Write each of these to either a `.npy` or `.csv` file with descriptive names.  They will be used below.
+   - Store the synthetic slip distributions in a list named `synthetic_slip`.  This list should be composed of dictionaries (one for each slip distribution).  Each dictionary should have three fields: `label`, `description`, and `slip_values`.  `label` should contain the label used in the list above (e.g., `A`, `B`, etc.), `description` should contain a description as above and `slip_values` the values of slip for the specific cases.  This dictionary should be saved to a `JSON` file named "synthetic_slip_north_anatolian.json". It will be used below.
 
 1. Generate synthetic surface velocities
     - Identify a reference block model (RBM).
