@@ -78,5 +78,12 @@ Resolution tests are not "a run one script/notebook and you get results" type of
     - Examine estimated slip deficit rates on the NAF (compare with synthetic input slip/slip deficit distribution)
         - Qualitatively (including visually) describe the extent to which the true synthetic feature are, and are not, resolved.
         - Calculate MAE and MSE between true synthetic and estimated as a function of noise level.
+    - Quantitatively define a goodness-of-fit metric describing how well the inferred slip distribution matches the prescribed synthetic slip distribution *and* how well the velocities predicted from a model with the inferred slip distribution matches the synthetic velocities:
+
+$$
+\mathrm{goodness \; of \; fit} = \frac{1}{n_v}\sum_i^{n_v}(v_i^\mathrm{predicted} - v_i^\mathrm{synthetic})^2 + \frac{\phi}{n_s}\sum_i^{n_s}(s_j^\mathrm{predicted} - s_j^\mathrm{synthetic})^2
+$$
+
+where $n_v$ is the number of velocities, $n_s$ is the number of TDE slip elements, and $\phi$ is a scalar that controls the relative weighting of the the two data sets.
 
 3. Repeat the above with various synthetic slip deficit distributions noise levels
