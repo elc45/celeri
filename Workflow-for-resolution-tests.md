@@ -53,7 +53,7 @@ Resolution tests are not "a run one script/notebook and you get results" type of
         - segment file name: `emed0035_segment_003.csv`.
         - mesh parameters file name: `mesh_parameters_naf_only.json`.
         - NAF mesh file name: `naf_17312.msh`.
-        - driver notebook file name: `celery_dense_anatolia_001`.
+        - driver notebook file name: `celeri_dense_anatolia_001`.
 
     - Run RBM estimation with real data
         - Make sure to save elastic kernels with `"pickle_save": 1,`, `"save_elastic": 1,` and `"save_elastic_file": "../data/operators/*_elastic_operators.hdf5",` settings in the command file.  The latter should point to where you want to store the elastic partial derivatives.  This will ensure that the elastic kernels are saved and don't have to be recomputed for every model run.  This is valid so long as the model geometry (including meshes) do not change.  The `pickle_save` flag will store all data structures in a single pickle file that we'll reuse later.
