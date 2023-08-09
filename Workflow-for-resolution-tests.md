@@ -47,12 +47,12 @@ Resolution tests are not "a run one script/notebook and you get results" type of
 
 1. Generate synthetic surface velocities
     - Identify a reference block model (RBM).
-        - command file name: `NNN`.
-        - velocity file name: `NNN`.
-        - block file name: `NNN`.
-        - segment file name: `NNN`.
-        - mesh parameters file name: `NNN`.
-        - NAF mesh file name: `NNN`.
+        - command file name: `command.json`.
+        - velocity file name: `weiss_gbm_train_naf_localized_subset_25k`.
+        - block file name: `emed0035_block.csv`.
+        - segment file name: `emed0035_segment_003.csv`.
+        - mesh parameters file name: `mesh_parameters_naf_only.json`.
+        - NAF mesh file name: `naf_17312.msh`.
         - driver notebook file name: `NNN`.
 
     - Run RBM estimation with real data
