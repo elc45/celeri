@@ -47,7 +47,7 @@ Resolution tests are not "a run one script/notebook and you get results" type of
 
 1. Generate synthetic surface velocities
     - Identify a reference block model (RBM).
-        - command file name: `command.json`.
+        - command file name: `command_001.json`.
         - velocity file name: `weiss_gbm_train_naf_localized_subset_25k`.
         - block file name: `emed0035_block.csv`.
         - segment file name: `emed0035_segment_003.csv`.
