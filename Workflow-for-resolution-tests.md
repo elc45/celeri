@@ -61,7 +61,7 @@ Resolution tests are not "a run one script/notebook and you get results" type of
 
     - Create a new notebook for running resolution tests named `NNN`
         - Load pickle file from RBM run.
-        - Load `.npy` file with synthetic slip/slip deficit distribution for the current resolution test.
+        - Load `.json` file named `synthetic_slip.json` with synthetic slip/slip deficit distribution for the current resolution test.
         - Construct a state vector that includes slip/slip deficit estimates.
             - Load `estimation.state_vector`.
             - Identify state vector indices associated with NAF mesh.
