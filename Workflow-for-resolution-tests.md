@@ -59,7 +59,7 @@ Resolution tests are not "a run one script/notebook and you get results" type of
         - Make sure to save elastic kernels with `"pickle_save": 1,`, `"save_elastic": 1,` and `"save_elastic_file": "../data/operators/*_elastic_operators.hdf5",` settings in the command file.  The latter should point to where you want to store the elastic partial derivatives.  This will ensure that the elastic kernels are saved and don't have to be recomputed for every model run.  This is valid so long as the model geometry (including meshes) do not change.  The `pickle_save` flag will store all data structures in a single pickle file that we'll reuse later.
         - Save state vector (`estimation.state_vector`) explicitly in a numpy (`.npy`) file with the name `estimation_state_vector.npy`.
 
-    - Create a new notebook for running resolution tests named `NNN`
+    - Create a new notebook for running resolution tests named `resolution_tests_001`
         - Load pickle file from RBM run.
         - Load `.json` file named `synthetic_slip.json` with synthetic slip/slip deficit distribution for the current resolution test.
         - Construct a state vector that includes slip/slip deficit estimates.
