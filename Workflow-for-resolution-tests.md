@@ -96,3 +96,6 @@ $$
 where $n_v$ is the number of velocities, $n_s$ is the number of TDE slip elements, and $\phi$ is a scalar that controls the relative weighting of the the two data sets.
 
 3. Repeat the above with various synthetic slip deficit distribution noise levels
+
+Note: When running block models notice that the functions celeri.get_all_mesh_smoothing_matrices_simple(meshes, operators) and 
+celeri.get_all_mesh_smoothing_matrices(meshes, operators) work with different magnitudes of smoothing weight values, which can modify the results. The simple version works with values in the order of 1e-0*, while the other one works with 1e10+. 
