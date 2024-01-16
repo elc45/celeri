@@ -2,10 +2,10 @@
 Slip, slip deficit, or coupling distributions along meshed faults are sensitive to model geometry, material properties, data locations, magnitude, noise, and regularization choices.  For the latter three cases, we can perform resolution tests that allow us to quantify how robust the inference of certain spatial features might be.  This step helps to minimize the possibility of a poorly constrained slip distribution being considered well-resolved.
 
 ## An example detailed workflow using a Anatolia/North Anatolian Fault model
-Resolution tests are not "a run one script/notebook and you get results" type of calculation.  Rather, they are accomplished through a series of steps that provide for a great deal of flexibility.  Below are the details for a specific case using the a North Anatolian fault model as an example.
+Resolution tests are not "a run one script/notebook and you get results" type of calculation.  Rather, they are accomplished through a series of steps that provide for a great deal of flexibility.  Below are the details for a specific case using the North Anatolian fault model as an example.
 
-0. Create synthetic NAF slip/slip deficit distribution for resolution tests (new notebook named `synthetic_slip_mesh_004.ipynb`)
-   - Read NAF mesh geometry and boundary conditions using mesh parameters file `mesh_parameters_naf_eaf.json` and triangulated geometry from `naf_17312.msh`.
+0. Create synthetic NAF slip/slip deficit distribution for resolution tests (new notebook named `synthetic_slip_mesh_001.ipynb`)
+   - Read NAF mesh geometry and boundary conditions using mesh parameters file `mesh_parameters_naf_only.json` and triangulated geometry from `naf_17312.msh`.
    - Generate synthetic slip/slip displacement vectors in multiple scenarios including but not limited to,
 
        A. NAF with a uniform slip deficit rate of 24 mm/yr.
@@ -42,6 +42,14 @@ Resolution tests are not "a run one script/notebook and you get results" type of
 
        Q. NAF checkerboard at 5 km x 5 km resolution with depth and along strike.  The checkerboard should be regions of slip deficit with values alternating between 0 and 24 mm/yr.
 
+       R. NAF checkerboard at 15 km x 5 km resolution with depth and along strike. The checkerboard should be regions of slip deficit with values alternating between 0 and 24 mm/yr.
+
+       S. NAF checkerboard at 15 km x 5 km resolution with depth and along strike down to 15 km depth, then 15 km x 5 km resolution with depth and along strike. The checkerboard should be regions of slip deficit with values alternating between 0 and 24 mm/yr.
+
+       T. NAF checkerboard at 15 km x 5 km resolution with depth and along strike down to 15 km depth, then 15 km x 7.5 km resolution with depth and along strike. The checkerboard should be regions of slip deficit with values alternating between 0 and 24 mm/yr.
+
+       U. NAF checkerboard at 30 km x 7.5 km resolution with depth and along strike down to 15 km depth, then 30 km x 15 km resolution with depth and along strike. The checkerboard should be regions of slip deficit with values alternating between 0 and 24 mm/yr.
+
    - Plot each of these.
    - Store the synthetic slip distributions in a list named `synthetic_slip`.  This list should be composed of dictionaries (one for each slip distribution).  Each dictionary should have three fields: `label`, `description`, and `slip_values`.  `label` should contain the label used in the list above (e.g., `A`, `B`, etc.), `description` should contain a description as above and `slip_values` the values of slip for the specific cases.  This dictionary should be saved to a `JSON` file named "synthetic_slip_north_anatolian.json". It will be used below.
 
@@ -53,17 +61,18 @@ Resolution tests are not "a run one script/notebook and you get results" type of
         - segment file name: `emed0035_segment_003.csv`.
         - mesh parameters file name: `mesh_parameters_naf_only.json`.
         - NAF mesh file name: `naf_17312.msh`.
-        - driver notebook file name: `celeri_dense_anatolia_001`.
+        - driver notebook file name: `celeri_dense_anatolia_001_extended`.
 
     - Run RBM estimation with real data
         - Make sure to save elastic kernels with `"pickle_save": 1,`, `"save_elastic": 1,` and `"save_elastic_file": "../data/operators/*_elastic_operators.hdf5",` settings in the command file.  The latter should point to where you want to store the elastic partial derivatives.  This will ensure that the elastic kernels are saved and don't have to be recomputed for every model run.  This is valid so long as the model geometry (including meshes) do not change.  The `pickle_save` flag will store all data structures in a single pickle file that we'll reuse later.
         - Save state vector (`estimation.state_vector`) explicitly in a numpy (`.npy`) file with the name `estimation_state_vector.npy`.
 
-    - Create a new notebook for running resolution tests named `resolution_tests_001`
+    - Create a new notebook for running resolution tests named `resolution_tests_001_individual` (in case the user wants to use only one synthetic slip distribution and smoothing weight value or `resolution_tests_001_multiple` (in case the user wants to use several synthetic slip distributions and/or smoothing weight values).
         - Load pickle file from RBM run.
         - Load `.json` file named `synthetic_slip.json` with synthetic slip/slip deficit distribution for the current resolution test.
         - Construct a state vector that includes slip/slip deficit estimates.
             - Load `estimation.state_vector`.
+            - Load inverted operator(s) created using `generate_and_save_inverted_operators_multiple_smoothing_weights_001.ipynb`
             - Identify state vector indices associated with NAF mesh.
             - With the indices found above, set the state vector indices associated with the NAF slip elements to the values from generated in part `0`.  This is where the synthetic values are integrated into the block model.
         - Calculate noise-free synthetic velocities by doing the matrix-vector multiply between this modified state vector and the linear system operator, `estimation.operator`.
@@ -76,7 +85,7 @@ Resolution tests are not "a run one script/notebook and you get results" type of
     - A new command file should be used here and named, `NNN`.  It should include information to reuse the previous elastic kernel with the command file flags: `"reuse_elastic": 1` and `"reuse_elastic_file": "../data/operators/*_elastic_operators.hdf5",` the latter of which should point to the output `hdf5` file produced by the model run in step 1 above.  This file contains the elastic partial derivatives.
     - The velocities for this run should be from one of the `*_station.csv` files created in step `1`.
     - Examine estimated slip deficit rates on the NAF (compare with synthetic input slip/slip deficit distribution)
-        - Qualitatively (including visually) describe the extent to which the true synthetic feature are, and are not, resolved.
+        - Qualitatively (including visually) describe the extent to which the true synthetic features are, and are not, resolved.
         - Calculate MAE and MSE between true synthetic and estimated as a function of noise level.
     - Quantitatively define a goodness-of-fit metric describing how well the inferred slip distribution matches the prescribed synthetic slip distribution *and* how well the velocities predicted from a model with the inferred slip distribution matches the synthetic velocities:
 
@@ -86,4 +95,4 @@ $$
 
 where $n_v$ is the number of velocities, $n_s$ is the number of TDE slip elements, and $\phi$ is a scalar that controls the relative weighting of the the two data sets.
 
-3. Repeat the above with various synthetic slip deficit distributions noise levels
+3. Repeat the above with various synthetic slip deficit distribution noise levels
