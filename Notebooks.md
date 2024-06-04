@@ -10,7 +10,7 @@
 - `celeri_western_north_america_dense_tricoup.ipynb`: [TBD]
 - `celeri_western_north_america_eigen.ipynb`: Western North America model with classic full dense solve and KL-eigenmode solve [demo, not polished, delete]
 - `celeri_western_north_america_eigen_clean.ipynb`: Western North America model with classic full dense solve and KL-eigenmode solve [demo].
-- `reference_classic_tde_slip_imaging.ipynb`: Classic dense resolution test [demo]
+- `reference_classic_tde_slip_imaging.ipynb`: Classic dense coseismic style resolution test [demo]
 - `reference_dense_and_hmatrix.ipynb`: Runs a dense and H-matrix solve for Western North America.  While it runs successfully the H-matrix solution is garbage [demo]
 - `reference_fault_slip_sense.ipynb`: Documentation of standards for relative senses of fault slip.  [demo, broken but results are still in markdown table]
 - `reference_linear_operator_structure.ipynb`: A single Markdown cell showing the algebraic structure of the large linear operator. [demo]
