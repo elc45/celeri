@@ -1,7 +1,8 @@
 # What we want:
-- Classic dense solve for Japan (multiple meshes) and WNA (simplicity)
+- Classic dense solve for Japan (multiple meshes) and WNA (simplicity). 
+ Base on `celeri_western_north_america_dense.ipynb`?
 
-- Nice Matplotlib visualization notebook
+- Nice Matplotlib visualization notebook.  Base on `celeri_anatolia_eigen.ipynb`?
 
 - Multiple solution methods: 1) Dense direct, 2) Dense iterative, 3) H-matrix, 4) Dense bounded, 5) Sparse bounded (does not exist yet), 6) Dense KL, 7) others.  Modify `ben_hmatrix_tests.ipynb` for this?
 
@@ -10,7 +11,7 @@
 - TBD
 
 # What we have:
-- `ben_hmatrix_tests.ipynb`: Contains a full direct dense solve, an iterative H-matrix solve, and an iterative dense solve. Features a clear example of linear operator preconditioning.  [demo, diagnostic, should polish]
+- `ben_hmatrix_tests.ipynb`: Contains a full direct dense solve, an iterative H-matrix solve, and an iterative dense solve. Features a clear example of linear operator preconditioning.  [demo, diagnostic, should polish, CURRENTLY BROKEN WITH SOME SLIP RATE CONSTRAINT ISSUE.]
 
 - `celeri_anatolia_eigen.ipynb`: Contains Anatolia example with classic full direct dense solve and KL solve.  Nice examples of Matplotlib graphics. [demo, diagnostic, should polish]
 
