@@ -1,7 +1,7 @@
 # What we want:
 - Classic dense solve for Japan (multiple meshes) and WNA (simplicity)
 - Nice Matplotlib visualization notebook
-- Multiple solution methods: 1) Dense direct, 2) Dense iterative, 3) H-matrix, 4) Dense bounded, 5) Sparse bounded (does not exist yet), 6) Dense KL, 7) others.
+- Multiple solution methods: 1) Dense direct, 2) Dense iterative, 3) H-matrix, 4) Dense bounded, 5) Sparse bounded (does not exist yet), 6) Dense KL, 7) others.  Modify `ben_hmatrix_tests.ipynb` for this?
 - TBD
 
 # What we have:
