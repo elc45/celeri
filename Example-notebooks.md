@@ -1,3 +1,10 @@
+# What we want:
+- Classic dense solve for Japan (multiple meshes) and WNA (simplicity)
+- Nice Matplotlib visualization notebook
+- Multiple solution methods: 1) Dense direct, 2) Dense iterative, 3) H-matrix, 4) others.
+- TBD
+
+# What we have:
 - `ben_hmatrix_tests.ipynb`: Contains a full direct dense solve, an iterative H-matrix solve, and an iterative dense solve. Features a clear example of linear operator preconditioning.  [demo, diagnostic, not polished but nice]
 
 - `celeri_anatolia_eigen.ipynb`: Contains Anatolia example with classic full direct dense solve and KL solve.  Nice examples of Matplotlib graphics. [demo, diagnostic, not polished]
