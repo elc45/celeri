@@ -1,6 +1,7 @@
 **Introduction**
 * [[What is celeri?]]
 * [[Installation]]
+* [[Notebooks]]
 
 **Constructing inputs**
 * [[Input overview]]
