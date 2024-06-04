@@ -1,7 +1,7 @@
 # What we want:
 - Classic dense solve for Japan (multiple meshes) and WNA (simplicity)
 - Nice Matplotlib visualization notebook
-- Multiple solution methods: 1) Dense direct, 2) Dense iterative, 3) H-matrix, 4) others.
+- Multiple solution methods: 1) Dense direct, 2) Dense iterative, 3) H-matrix, 4) Dense bounded, 5) Sparse bounded (does not exist yet), 6) Dense KL, 7) others.
 - TBD
 
 # What we have:
@@ -19,7 +19,7 @@
 
 - `celeri_western_north_america_dense.ipynb`: Classic Western North America block model with full dense solve. [demo]
 
-- `celeri_western_north_america_dense_experimental.ipynb`: [TBD]
+- `celeri_western_north_america_dense_experimental.ipynb`: Classic Western North America block model with *bounded* full dense solve. [demo]
 
 - `celeri_western_north_america_dense_experimental_resolution_test.ipynb`: [TBD]
 
