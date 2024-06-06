@@ -1,7 +1,6 @@
 
 
 # The structure of the linear operator for the block model problem in `celeri`,
-
 ```math
 \begin{bmatrix} 
     \mathbf{v} \\
@@ -34,8 +33,10 @@
 \end{bmatrix}
 ```
 
+# Locking depth is positive down  
+
+
 # Summary of Okada slip rate conventions:
-- ## Locking depth is positive down  
 | type | sign | interpretation |
 | - | - | - |
 | strike-slip | positive | left-lateral |
@@ -44,4 +45,4 @@
 | dip-slip | negative | extension |
 | tensile-slip | positive | extension |
 | tensile-slip | negative | convergence |
-- ## Note: The difference in sign for convergence and extension for dip-slip and tensile-slip is not idea but it seems consistent with Okada?  Should I change this so that it is more intiutive (e.g., positive numbers are always convergence) or leave as is for consistency with Okada?
+- Note: The difference in sign for convergence and extension for dip-slip and tensile-slip is not idea but it seems consistent with Okada?  Should I change this so that it is more intiutive (e.g., positive numbers are always convergence) or leave as is for consistency with Okada?
