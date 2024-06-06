@@ -1,5 +1,6 @@
 **Introduction**
 * [[What is celeri?]]
+* [[Basics]]
 * [[Installation]]
 * [[Example notebooks]]
 
