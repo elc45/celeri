@@ -2,7 +2,7 @@
 
 # The structure of the linear operator for the block model problem in `celeri`,
 
-$$
+$$$
 \begin{bmatrix} 
     \mathbf{v} \\
     \boldsymbol{\omega}_\mathrm{c} \\
@@ -32,4 +32,4 @@ $$
     \boldsymbol{\epsilon} \\ 
     \mathbf{m} 
 \end{bmatrix}
-$$
+$$$
