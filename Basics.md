@@ -33,3 +33,15 @@
     \mathbf{m} 
 \end{bmatrix}
 ```
+
+# Summary of Okada slip rate conventions:
+- ## Locking depth is positive down  
+| type | sign | interpretation |
+| - | - | - |
+| strike-slip | positive | left-lateral |
+| strike-slip | negative | right-lateral |
+| dip-slip | positive | convergence |
+| dip-slip | negative | extension |
+| tensile-slip | positive | extension |
+| tensile-slip | negative | convergence |
+- ## Note: The difference in sign for convergence and extension for dip-slip and tensile-slip is not idea but it seems consistent with Okada?  Should I change this so that it is more intiutive (e.g., positive numbers are always convergence) or leave as is for consistency with Okada?
