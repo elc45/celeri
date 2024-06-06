@@ -1,6 +1,6 @@
 
 
-# The structure of the linear operator for the block model problem in `celeri`,
+### The structure of the linear operator for the block model problem in `celeri`,
 ```math
 \begin{bmatrix} 
     \mathbf{v} \\
