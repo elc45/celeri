@@ -33,10 +33,10 @@
 \end{bmatrix}
 ```
 
-# Locking depth is positive down  
+### Locking depth is positive down  
 
 
-# Summary of Okada slip rate conventions:
+### Summary of Okada slip rate conventions:
 | type | sign | interpretation |
 | - | - | - |
 | strike-slip | positive | left-lateral |
