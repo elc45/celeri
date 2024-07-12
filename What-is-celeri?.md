@@ -1,4 +1,4 @@
-**celeri** comprises a set of MATLAB codes for analyzing crustal deformation at active plate boundary zones, using geodetic velocities and geologic fault slip rates. **celeri** simultaneously estimates microplate rotations and elastic earthquake cycle effects based on nominally interseismic geodetic velocities. A full description of the theory behind **celeri** can be found in:
+**celeri** is Python software for analyzing crustal deformation at active plate boundary zones, using geodetic velocities and geologic fault slip rates. **celeri** simultaneously estimates microplate rotations and elastic earthquake cycle effects based on nominally interseismic geodetic velocities. A full description of the theory behind **celeri** can be found in:
 
 * Meade, B.J. and J.P. Loveless (2009), Block modeling with multiple fault network geometries and a linear elastic coupling estimator in spherical coordinates, *Bulletin of the Seismological Society of America*, 99(6), 3124–3139, [doi:10.1785/0120090088](https://dx.doi.org/10.1785/0120090088).
 
