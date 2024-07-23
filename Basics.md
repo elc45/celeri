@@ -32,7 +32,7 @@
     \mathbf{m} 
 \end{bmatrix}
 ```
-where 
+where for the data vector,
 
 $\mathbf{v}$ is a vector of geodetic velocities, 
 
