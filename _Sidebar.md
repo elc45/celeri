@@ -9,6 +9,7 @@
 * [[Using celeri_ui]]
 * [[Geodetic data files]]
 * [[Triangular elements]]
+* [[Meshing subsets of segments]]
 
 **[[Running celeri]]**
 * [[Workflow for resolution tests]]
