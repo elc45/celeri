@@ -4,7 +4,6 @@
 ```math
 \begin{bmatrix} 
     \mathbf{v} \\
-    \mathbf{LOS} \\
     \boldsymbol{\omega}_\mathrm{c} \\
     \mathbf{s}_\mathrm{c} \\ 
     \mathbf{0} \\ 
@@ -15,7 +14,7 @@
 \end{bmatrix} 
 =
 \begin{bmatrix} 
-    \mathbf{R}_\mathbf{v}            & \mathbf{T}(\mathrm{m}_1) & \cdots & \mathbf{T}(\mathrm{m}_n) & \mathbf{E} & \mathbf{M} \\ 
+    \mathbf{R}            & \mathbf{T}(\mathrm{m}_1) & \cdots & \mathbf{T}(\mathrm{m}_n) & \mathbf{E} & \mathbf{M} \\ 
     \mathbf{I}            & \mathbf{0}               & \cdots & \mathbf{0}               & \mathbf{0} & \mathbf{0} \\ 
     \mathbf{R}_\mathrm{s} & \mathbf{0}               & \cdots & \mathbf{0}               & \mathbf{0} & \mathbf{0} \\ 
     \mathbf{0}            & \mathbf{S}(\mathrm{m}_1) & \cdots & \mathbf{0}               & \mathbf{0} & \mathbf{0} \\ 
@@ -57,6 +56,7 @@ Finally, we estimate $\boldsymbol{\omega}$ as block motion vectors,
 ```math
 \begin{bmatrix} 
     \mathbf{v} \\
+    \mathbf{LOS} \\
     \boldsymbol{\omega}_\mathrm{c} \\
     \mathbf{s}_\mathrm{c} \\ 
     \mathbf{0} \\ 
@@ -67,7 +67,7 @@ Finally, we estimate $\boldsymbol{\omega}$ as block motion vectors,
 \end{bmatrix} 
 =
 \begin{bmatrix} 
-    \mathbf{R}            & \mathbf{T}(\mathrm{m}_1) & \cdots & \mathbf{T}(\mathrm{m}_n) & \mathbf{E} & \mathbf{M} \\ 
+    \mathbf{R}_\mathbf{v}            & \mathbf{T}_\mathbf{v}(\mathrm{m}_1) & \cdots & \mathbf{T}_\mathbf{v}(\mathrm{m}_n) & \mathbf{E}_\mathbf{v} & \mathbf{M}_\mathbf{v} \\ 
     \mathbf{I}            & \mathbf{0}               & \cdots & \mathbf{0}               & \mathbf{0} & \mathbf{0} \\ 
     \mathbf{R}_\mathrm{s} & \mathbf{0}               & \cdots & \mathbf{0}               & \mathbf{0} & \mathbf{0} \\ 
     \mathbf{0}            & \mathbf{S}(\mathrm{m}_1) & \cdots & \mathbf{0}               & \mathbf{0} & \mathbf{0} \\ 
