@@ -68,6 +68,7 @@ Finally, we estimate $\boldsymbol{\omega}$ as block motion vectors,
 =
 \begin{bmatrix} 
     \mathbf{R}_\mathbf{v}            & \mathbf{T}_\mathbf{v}(\mathrm{m}_1) & \cdots & \mathbf{T}_\mathbf{v}(\mathrm{m}_n) & \mathbf{E}_\mathbf{v} & \mathbf{M}_\mathbf{v} \\ 
+    \mathbf{R}_\mathbf{LOS}            & \mathbf{T}_\mathbf{LOS}(\mathrm{m}_1) & \cdots & \mathbf{T}_\mathbf{LOS}(\mathrm{m}_n) & \mathbf{E}_\mathbf{LOS} & \mathbf{M}_\mathbf{LOS} \\ 
     \mathbf{I}            & \mathbf{0}               & \cdots & \mathbf{0}               & \mathbf{0} & \mathbf{0} \\ 
     \mathbf{R}_\mathrm{s} & \mathbf{0}               & \cdots & \mathbf{0}               & \mathbf{0} & \mathbf{0} \\ 
     \mathbf{0}            & \mathbf{S}(\mathrm{m}_1) & \cdots & \mathbf{0}               & \mathbf{0} & \mathbf{0} \\ 
