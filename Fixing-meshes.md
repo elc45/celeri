@@ -1,4 +1,4 @@
-1. Convert `.msh` file to `.stl` file with modified $z$-coordinates
+1. Convert `.msh` file to `.stl` file with modified (unphysical pseudo-degrees) $z$-coordinates
 
 ```python
 import gmsh
