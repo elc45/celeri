@@ -10,6 +10,7 @@
 * [[Geodetic data files]]
 * [[Triangular elements]]
 * [[Meshing subsets of segments]]
+* [[Fixing meshes]]
 
 **[[Running celeri]]**
 * [[Workflow for resolution tests]]
