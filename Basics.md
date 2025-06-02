@@ -4,7 +4,7 @@
 ```math
 \begin{bmatrix} 
     \mathbf{v} \\
-    \boldsymbol{\omega}_\mathrm{c} \\
+    \omega_\mathrm{c} \\
     \mathbf{s}_\mathrm{c} \\ 
     \mathbf{0} \\ 
     \mathbf{t}_\mathrm{c}(\mathrm{m}_1) \\ 
@@ -24,11 +24,11 @@
     \mathbf{0}            & \mathbf{0}               & \cdots & \mathbf{I}               & \mathbf{0} & \mathbf{0} 
 \end{bmatrix} 
 \begin{bmatrix} 
-    \boldsymbol{\omega} \\ 
+    \omega \\ 
     \mathbf{t}(\mathrm{m}_1) \\ 
     \vdots \\ 
     \mathbf{t}(\mathrm{m}_n) \\ 
-    \boldsymbol{\epsilon} \\ 
+    \epsilon \\ 
     \mathbf{m} 
 \end{bmatrix}
 ```
@@ -36,7 +36,7 @@ where for the data vector,
 
 $\mathbf{v}$ is a vector of geodetic velocities, 
 
-$\boldsymbol{\omega}_\mathrm{c}$ are _a priori_ constraints on block motion, 
+$\omega_\mathrm{c}$ are _a priori_ constraints on block motion, 
 
 $\mathbf{s}_\mathrm{c}$ are _a priori_ constraints on fault slip rates, 
 
@@ -46,10 +46,7 @@ $\mathbf{t}^1_\mathrm{c}$ are _a priori_ constraints on TDE slip rates for mesh 
 
 For the design matrix, $\mathbf{R}$ is an operator relating block motion and elastic deformation around fully coupled segments to geodetic velocities, $\mathbf{T}^i$ relates TDE slip rates to geodetic velocities for mesh $i$, $\mathbf{E}$ relates homogeneous intrablock strain rates to geodetic velocities, and $\mathbf{P}$ relates volume change rates at Mogi sources to geodetic velocities. For constraints, $\mathbf{R}_\mathrm{s}$ projects block motion into fault slip rates and $\mathbf{S}^i$ smooths TDE slip rates.
 
-Finally, we estimate $\boldsymbol{\omega}$ as block motion vectors, 
-        $\mathbf{t}^i$ as TDE slip rates for mesh $i$, 
-        $\boldsymbol{\epsilon}$ as intrablock strain rates, and
-        $\mathbf{p}$ as volume change rates at Mogi sources.
+Finally, we estimate $\omega$ as block motion vectors, $\mathbf{t}^i$ as TDE slip rates for mesh $i$, $\epsilon$ as intrablock strain rates, and $\mathbf{p}$ as volume change rates at Mogi sources.
 
 
 ### Construction with InSAR LOS data
@@ -57,7 +54,7 @@ Finally, we estimate $\boldsymbol{\omega}$ as block motion vectors,
 \begin{bmatrix} 
     \mathbf{v} \\
     \mathbf{LOS} \\
-    \boldsymbol{\omega}_\mathrm{c} \\
+    \omega_\mathrm{c} \\
     \mathbf{s}_\mathrm{c} \\ 
     \mathbf{0} \\ 
     \mathbf{t}_\mathrm{c}(\mathrm{m}_1) \\ 
@@ -78,11 +75,11 @@ Finally, we estimate $\boldsymbol{\omega}$ as block motion vectors,
     \mathbf{0}            & \mathbf{0}               & \cdots & \mathbf{I}               & \mathbf{0} & \mathbf{0} 
 \end{bmatrix} 
 \begin{bmatrix} 
-    \boldsymbol{\omega} \\ 
+    \omega \\ 
     \mathbf{t}(\mathrm{m}_1) \\ 
     \vdots \\ 
     \mathbf{t}(\mathrm{m}_n) \\ 
-    \boldsymbol{\epsilon} \\ 
+    \epsilon \\ 
     \mathbf{m} 
 \end{bmatrix}
 ```
