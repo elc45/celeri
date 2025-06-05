@@ -1,48 +1,7 @@
-1. Convert `.msh` file to `.stl` file with modified (unphysical pseudo-degrees) $z$-coordinates
+Some meshes require cleaning to remove redundant and ill-shaped elements.  Meshlab is fantastic for visualizing and fixing meshes but doesn't support the .msh format.  The basic workflow for this is:
 
-```python
-import gmsh
-import numpy as np
-
-gmsh.initialize()
-gmsh.open("cascadia.msh")
-
-nodeTags, nodeCoords, _ = gmsh.model.mesh.getNodes()
-coords = np.array(nodeCoords).reshape(-1, 3)
-
-# Example: scale Z by 0.01
-coords[:, 2] *= 0.01
-
-for i, tag in enumerate(nodeTags):
-    x, y, z = coords[i]
-    gmsh.model.mesh.setNode(int(tag), [x, y, z], [])
-
-gmsh.write("cascadia_scaled.stl")
-gmsh.finalize()
-```
-
-2. Update/modify/smooth mesh with [Meshlab](https://www.meshlab.net/)
-
-3. Convert `.stl` file back to `.msh` file with original style (km) z-coordinates
-
-```python
-import gmsh
-import numpy as np
-
-gmsh.initialize()
-gmsh.open("cascadia_scaled_smoothed.stl")
-
-nodeTags, nodeCoords, _ = gmsh.model.mesh.getNodes()
-coords = np.array(nodeCoords).reshape(-1, 3)
-
-# Example: scale Z by 0.01
-coords[:, 2] /= 0.01
-
-for i, tag in enumerate(nodeTags):
-    x, y, z = coords[i]
-    gmsh.model.mesh.setNode(int(tag), [x, y, z], [])
-gmsh.write("cascadia_scaled_smoothed.msh")
-gmsh.finalize()
-```
-
-
+1. Convert `.msh` file to `.stl` using the [`msh2stl.py`](https://github.com/brendanjmeade/celeri/blob/main/celeri/scripts/msh2stl.py) script (with modified (unphysical pseudo-degrees) $z$-coordinates)
+2. Load `.stl` file into Meshlab
+3. Update/modify/smooth mesh with [Meshlab](https://www.meshlab.net/)
+4. Save the modified .stl file from Meshlab
+5. Convert `.stl` to `.msh` file with [`stl2msh.py`](https://github.com/brendanjmeade/celeri/blob/main/celeri/scripts/stl2msh.py) (with unprojection from modified (unphysical pseudo-degrees) $z$-coordinates)
