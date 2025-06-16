@@ -1,7 +1,9 @@
 `*_segment.csv` files define the block model geometry.  The columns are:
 
-name
-lon1
+`name`:
+
+`lon1`:
+
 lat1
 lon2
 lat2
