@@ -7,6 +7,7 @@
 **Constructing inputs**
 * [[Input overview]]
 * [[Using celeri_ui]]
+* [[segment files]]
 * [[Geodetic data files]]
 * [[Triangular elements]]
 * [[Meshing subsets of segments]]
