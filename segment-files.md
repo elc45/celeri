@@ -1,16 +1,16 @@
 `*_segment.csv` files define the block model geometry.  The columns are:
 
-`name`:
+`name`: Name of fault segment (string).
 
-`lon1`:
+`lon1`: Longitude of segment endpoint 1 (float).
 
-`lat1`:
+`lat1`: Latitude of segment endpoint 1 (float).
 
-`lon2`:
+`lon2`: Longitude of segment endpoint 2 (float).
 
-`lat2`:
+`lat2`: Latitude of segment endpoint 2 (float).
 
-`dip`:
+`dip`: Segment dip (float).  Note: May need to be flipped depending on endpoint ordering.
 
 `res`: UNUSED REMOVE
 
