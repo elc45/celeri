@@ -8,6 +8,8 @@
 * [[Input overview]]
 * [[Using celeri_ui]]
 * [[segment files]]
+* [[config file field definitions]]
+* [[Mesh parameter descriptions]]
 * [[Geodetic data files]]
 * [[Triangular elements]]
 * [[Meshing subsets of segments]]
