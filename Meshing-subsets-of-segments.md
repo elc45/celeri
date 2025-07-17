@@ -1,4 +1,4 @@
-**@jploveless: Need to edit this to update to reference `segmesh.py` instead of notebook. **
+@jploveless: Need to edit this to update to reference `segmesh.py` instead of notebook
 
 Segments tagged with `create_ribbon_mesh` > 0 can be meshed into continuous networks of triangular dislocation elements, termed ribbon meshes, using the notebook [`segment_meshing.ipynb`](https://github.com/brendanjmeade/celeri/blob/main/notebooks/segment_meshing.ipynb). This flag can be specified within a segment file, and the meshing takes place after the block closure routine so that the segments can be properly ordered. 
 
