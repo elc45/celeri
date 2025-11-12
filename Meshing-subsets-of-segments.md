@@ -1,5 +1,6 @@
 @jploveless: Need to edit this to update to reference `segmesh.py` instead of notebook
 
+## Creating meshes from segment file elements
 Segments tagged with `create_ribbon_mesh` > 0 can be meshed into continuous networks of triangular dislocation elements, termed ribbon meshes, using the notebook [`segment_meshing.ipynb`](https://github.com/brendanjmeade/celeri/blob/main/notebooks/segment_meshing.ipynb). This flag can be specified within a segment file, and the meshing takes place after the block closure routine so that the segments can be properly ordered. 
 
 First, the bottom coordinates of each segment are found, reckoning from the endpoints in a direction perpendicular to strike by the horizontal projection of the fault width; this is zero for vertical segments. Along a contiguous subset of segments, the bottom coordinates are averaged so that a closed loop of top and bottom vertices can be constructed. This means that, when adjacent segments differ in dip and/or locking depth, the originally specified segment properties do not strictly propagate into the TDE mesh. Geometric consequences include trapezoidal faults (where adjacent segments have different locking depths) and modification of specified dip. Creating shorter segments, including through repeated splitting to retain consistent properties, can reduce the impact of the bottom coordinate averaging. 
@@ -12,3 +13,10 @@ In addition to generating the meshes, the ribbon meshing routine updates several
 - In `Segment`, `patch_file_name` is set to be a new integer corresponding to the ribbon mesh index (corrected for number of meshes in the original `.mshp` file), and `patch_flag` is set to 1. This allows the locking depth of the segment to be set to zero. `create_ribbon_mesh` is set to zero so that meshes are not recreated. 
 - The `.mshp` file is updated with new entries identifying the newly created ribbon meshes. These are added after any existing meshes and the listing order corresponds to the values in `segment.patch_file_name`.
 - A new `.command` file is written, updated with the filenames of the new `segment.csv` and mesh parameter `.json` files. These are placed in the same folder as the original files, with `_ribbonmesh` appended.
+
+## Creating "Base of elastic layer" (BEL) meshes
+1. Create a `<polygon.csv>` file with lon and lat coordinates of an approximate geographic polygon representing the BEL region.
+2. Run `python create_bel_mesh_from_poly.py <polygon.csv> <buffer> <depth> <mesh spacing>`
+   - `<buffer>`: Length scale (approximate km) to create a smooth outer buffer of the initial polygon using shapely
+   - `<depth>`: Depth of BEL (km).  Should be a positive number but is converted to negative when writing the output `.msh` file.
+   - `<mesh spacing>`: Approximate spacing of mesh elements (approximate km)
