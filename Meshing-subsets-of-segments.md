@@ -14,6 +14,15 @@ In addition to generating the meshes, the ribbon meshing routine updates several
 - The `.mshp` file is updated with new entries identifying the newly created ribbon meshes. These are added after any existing meshes and the listing order corresponds to the values in `segment.patch_file_name`.
 - A new `.command` file is written, updated with the filenames of the new `segment.csv` and mesh parameter `.json` files. These are placed in the same folder as the original files, with `_ribbonmesh` appended.
 
+## Using celeri-segmesh
+1. Modify `<segment.csv>` file so that `create_ribbon_mesh = 1` for all segments that you want meshed.  Make sure that a `<config.json>` file points to this `<segment.csv>` file.
+2. Call segmesh.  For example: `celeri-segmesh data/config/wna_config.json -el 2 8`.  The `-el 2 8` part sets a meshing target 2 km element spacing at the top of the mesh and 8 km at the bottom.
+3. This produces (and will clobber) updated model files:
+  - Creates `*_segmesh.csv`: Updated segment file with mesh flags set
+  - Creates `*_segmesh.json`: Updated config file referencing new meshes
+  - Creates `*mesh_params_segmesh.json`: Mesh parameter file
+  - Creates `.msh` files in your mesh directory
+
 ## Creating "Base of elastic layer" (BEL) meshes
 1. Create a `<polygon.csv>` file with lon and lat coordinates of an approximate geographic polygon representing the BEL region.
 2. Run `python create_bel_mesh_from_poly.py <polygon.csv> <buffer> <depth> <mesh spacing>`
