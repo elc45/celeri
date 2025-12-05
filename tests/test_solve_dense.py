@@ -206,9 +206,9 @@ def test_dense_sol(config_name, eigen: bool, tde: bool):
 
     scale_factors = {
     'block_rotation': 1e6,
-    'block_strain': 1e9,
-    'mogi': 1e-7,
-    'eigen': 1e-3,
+    'block_strain': 1e7,
+    'mogi': 1e-9,               
+    'eigen': 1e-3,              
     }
 
     index = estimation.index
