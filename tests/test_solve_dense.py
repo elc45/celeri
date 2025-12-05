@@ -2,7 +2,7 @@ import pytest
 import celeri
 import numpy as np
 
-@pytest.mark.array_compare(rtol=1e-4, atol=1e-9)
+@pytest.mark.array_compare()
 @pytest.mark.parametrize(
     "config_name",
     ["test_japan_config", "test_wna_config"],
@@ -24,7 +24,8 @@ def test_operator_tde_to_velocities(config_name):
 
     return operator[np.ix_(idx_rows, idx_cols)]
 
-@pytest.mark.array_compare(rtol=1e-4, atol=1e-9)
+
+@pytest.mark.array_compare()
 @pytest.mark.parametrize(
     "config_name",
     ["test_japan_config", "test_wna_config"],
@@ -46,7 +47,8 @@ def test_operator_eigen_to_velocities(config_name):
 
     return operator[np.ix_(idx_rows, idx_cols)]
 
-@pytest.mark.array_compare(rtol=1e-4, atol=1e-9)
+
+@pytest.mark.array_compare()
 @pytest.mark.parametrize(
     "config_name",
     ["test_japan_config", "test_wna_config"],
@@ -68,7 +70,8 @@ def test_operator_eigen_to_tde_slip(config_name):
 
     return operator[np.ix_(idx_rows, idx_cols)]
 
-@pytest.mark.array_compare(rtol=1e-4, atol=1e-9)
+
+@pytest.mark.array_compare()
 @pytest.mark.parametrize(
     "config_name",
     ["test_japan_config", "test_wna_config"],
@@ -90,7 +93,8 @@ def test_operator_eigen_to_tde_bcs(config_name):
 
     return operator[np.ix_(idx_rows, idx_cols)]
 
-@pytest.mark.array_compare(rtol=1e-4, atol=1e-9)
+
+@pytest.mark.array_compare()
 @pytest.mark.parametrize(
     "config_name",
     ["test_japan_config", "test_wna_config"],
@@ -112,7 +116,8 @@ def test_operator_slip_rate_to_okada_to_velocities(config_name):
 
     return operator[np.ix_(idx_rows, idx_cols)]
 
-@pytest.mark.array_compare(rtol=1e-4, atol=1e-9)
+
+@pytest.mark.array_compare()
 @pytest.mark.parametrize(
     "config_name",
     ["test_japan_config", "test_wna_config"],
@@ -134,7 +139,7 @@ def test_operator_block_strain_rate_to_velocities(config_name):
 
     return operator[np.ix_(idx_rows, idx_cols)]
 
-@pytest.mark.array_compare(rtol=1e-4, atol=1e-9)
+@pytest.mark.array_compare()
 @pytest.mark.parametrize(
     "config_name",
     ["test_japan_config", "test_wna_config"],
@@ -156,7 +161,8 @@ def test_operator_rotation_to_slip_rate(config_name):
 
     return operator[np.ix_(idx_rows, idx_cols)]
 
-@pytest.mark.array_compare(rtol=1e-4, atol=1e-9)
+
+@pytest.mark.array_compare()
 @pytest.mark.parametrize(
     "config_name",
     ["test_japan_config", "test_wna_config"],
@@ -178,7 +184,8 @@ def test_operator_rotation_to_tri_slip_rate(config_name):
 
     return operator[np.ix_(idx_rows, idx_cols)]
 
-@pytest.mark.array_compare(rtol=1e-4, atol=1e-9)
+
+@pytest.mark.array_compare()
 @pytest.mark.parametrize(
     "config_name, eigen, tde",
     [
@@ -197,12 +204,28 @@ def test_dense_sol(config_name, eigen: bool, tde: bool):
 
     estimation = celeri.assemble_and_solve_dense(model, eigen=eigen, tde=tde)
 
-    assert hasattr(estimation, "tde_rates")
-    assert hasattr(estimation, "east_vel_residual")
+    scale_factors = {
+    'block_rotation': 1e6,
+    'block_strain': 1e9,
+    'mogi': 1e-7,
+    }
 
-    scale = np.abs(estimation.operators.full_dense_operator).max(0)
-    estimation.state_vector = estimation.state_vector * scale
-    return estimation.state_vector
+    index = estimation.index
+    n_params = len(estimation.state_vector)
+    scaling_vector = np.ones(n_params)
+
+    if index.start_block_col < index.end_block_col:
+        scaling_vector[index.start_block_col:index.end_block_col] = scale_factors['block_rotation']
+
+    if index.start_block_strain_col < index.end_block_strain_col:
+        scaling_vector[index.start_block_strain_col:index.end_block_strain_col] = scale_factors['block_strain']
+
+    if index.start_mogi_col < index.end_mogi_col:
+        scaling_vector[index.start_mogi_col:index.end_mogi_col] = scale_factors['mogi']
+
+    state_vector_scaled = estimation.state_vector * scaling_vector
+    return state_vector_scaled
+
 
 def test_japan_dense_error():
     config_file_name = "./tests/configs/test_japan_config.json"
