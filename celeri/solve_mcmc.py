@@ -32,11 +32,11 @@ def _constrain_field(values, lower: float | None, upper: float | None):
 
     if lower is not None and upper is not None:
         scale = upper - lower
-        return pm.math.sigmoid(values) * scale + lower
+        return pm.math.sigmoid(values) * scale + lower  # type: ignore[attr-defined]
     if lower is not None:
-        return pm.math.softplus(values) + lower
+        return pm.math.softplus(values) + lower  # type: ignore[attr-defined]
     if upper is not None:
-        return upper - pm.math.softplus(-values)
+        return upper - pm.math.softplus(-values)  # type: ignore[attr-defined]
     return values
 
 
@@ -150,181 +150,207 @@ def _station_vel_from_elastic_mesh(
         )
 
 
-def _coupling_component(
-    model: Model,
-    mesh: int,
-    kind: Literal["strike_slip", "dip_slip"],
-    rotation,
-    operators: Operators,
-    lower: float | None,
-    upper: float | None,
-):
-    """Model elastic slip rate as coupling * kinematic slip rate.
-
-    Return the resulting elastic velocity at the station locations.
-    """
-    assert operators.eigen is not None
-    assert operators.tde is not None
-
-    import pymc as pm
-
-    idx = DIRECTION_IDX[kind]
-
-    if mesh not in operators.rotation_to_tri_slip_rate:
-        raise ValueError(
-            f"Mesh {mesh} does not have well defined kinematic slip rates. "
-            "Coupling constraints cannot be used."
-        )
-
-    operator = operators.rotation_to_tri_slip_rate[mesh][idx, :]
-    kinematic = _operator_mult(operator, rotation)
-    pm.Deterministic(f"kinematic_{mesh}_{kind}", kinematic)
-
-    eigenvectors, _ = _get_eigen_modes(
-        model,
-        mesh,
-        kind,
-        operators,
-        out_idx=idx,
-    )
-    n_eigs = eigenvectors.shape[1]
-    coefs = pm.Normal(f"coupling_coefs_{mesh}_{kind}", mu=0, sigma=10, shape=n_eigs)
-
-    coupling_field = _operator_mult(eigenvectors, coefs)
-    coupling_field = _constrain_field(coupling_field, lower, upper)
-    pm.Deterministic(f"coupling_{mesh}_{kind}", coupling_field)
-    elastic = kinematic * coupling_field
-    pm.Deterministic(f"elastic_{mesh}_{kind}", elastic)
-
-    elastic_velocity = _station_vel_from_elastic_mesh(
-        model,
-        mesh,
-        kind,
-        elastic,
-        operators,
-    )
-    return elastic_velocity.astype("d")
-
-
-def _elastic_component(
-    model: Model,
-    mesh: int,
-    kind: Literal["strike_slip", "dip_slip"],
-    rotation,
-    operators: Operators,
-    lower: float | None,
-    upper: float | None,
-):
-    """Model elastic slip rate as a linear combination of eigenmodes.
-
-    Return the resulting elastic velocity at the station locations.
-    """
-    assert operators.eigen is not None
-    assert operators.tde is not None
-
-    import pymc as pm
-    import pytensor.tensor as pt
-
-    idx = DIRECTION_IDX[kind]
-
-    scale = 0.0
-    for op in operators.eigen.eigen_to_velocities.values():
-        scale += (op**2).mean()
-
-    scale = scale / len(operators.eigen.eigen_to_velocities)
-    scale = 1 / np.sqrt(scale)
-
-    eigenvectors, to_velocity = _get_eigen_modes(
-        model,
-        mesh,
-        kind,
-        operators,
-        out_idx=idx,
-    )
-    n_eigs = eigenvectors.shape[1]
-
-    raw = pm.Normal(f"elastic_eigen_raw_{mesh}_{kind}", shape=n_eigs)
-    param = pm.Deterministic(f"elastic_eigen_{mesh}_{kind}", scale * raw)
-    elastic = _constrain_field(_operator_mult(eigenvectors, param), lower, upper)
-    pm.Deterministic(f"elastic_{mesh}_{kind}", elastic)
-
-    # Compute elastic velocity at stations. The operator already
-    # includes a negative sign.
-    if lower is None and upper is None:
-        elastic_velocity = _operator_mult(to_velocity, param)
-        # We need to return a station velocity for all three components,
-        # not just north and east.
-        elastic_velocity = pt.concatenate(
-            [
-                elastic_velocity.reshape((len(model.station), 2)),
-                np.zeros((len(model.station), 1)),
-            ],
-            axis=-1,
-        ).ravel()
-    else:
-        elastic_velocity = _station_vel_from_elastic_mesh(
-            model,
-            mesh,
-            kind,
-            elastic,
-            operators,
-        )
-
-    return elastic_velocity
-
-
 def _mesh_component(
     model: Model,
     mesh: int,
     rotation,
     operators: Operators,
+    coupling_coefs,
+    elastic_eigen,
 ):
-    rates = []
+    import pymc as pm
+    import pytensor.tensor as pt
 
-    for kind in ["strike_slip", "dip_slip"]:
-        if kind == "strike_slip":
-            coupling_limit = model.meshes[mesh].config.coupling_constraints_ss
-            rate_limit = model.meshes[mesh].config.elastic_constraints_ss
-        else:
-            coupling_limit = model.meshes[mesh].config.coupling_constraints_ds
-            rate_limit = model.meshes[mesh].config.elastic_constraints_ds
+    assert operators.eigen is not None
+    assert operators.tde is not None
 
-        has_rate_limit = rate_limit.lower is not None or rate_limit.upper is not None
-        has_coupling_limit = (
-            coupling_limit.lower is not None or coupling_limit.upper is not None
+    mesh_obj = model.meshes[mesh]
+    n_tde = mesh_obj.n_tde
+
+    # Check constraints for each slip type
+    coupling_limit_ss = mesh_obj.config.coupling_constraints_ss
+    coupling_limit_ds = mesh_obj.config.coupling_constraints_ds
+    rate_limit_ss = mesh_obj.config.elastic_constraints_ss
+    rate_limit_ds = mesh_obj.config.elastic_constraints_ds
+
+    has_coupling_ss = (
+        coupling_limit_ss.lower is not None or coupling_limit_ss.upper is not None
+    )
+    has_coupling_ds = (
+        coupling_limit_ds.lower is not None or coupling_limit_ds.upper is not None
+    )
+    has_rate_limit_ss = rate_limit_ss.lower is not None or rate_limit_ss.upper is not None
+    has_rate_limit_ds = rate_limit_ds.lower is not None or rate_limit_ds.upper is not None
+
+    # Validate constraints
+    if has_rate_limit_ss and has_coupling_ss:
+        raise ValueError(
+            "Cannot have both rate and coupling constraints "
+            f"for mesh {mesh} strike_slip."
+        )
+    if has_rate_limit_ds and has_coupling_ds:
+        raise ValueError(
+            "Cannot have both rate and coupling constraints "
+            f"for mesh {mesh} dip_slip."
         )
 
-        if has_rate_limit and has_coupling_limit:
-            raise ValueError(
-                "Cannot have both rate and coupling constraints "
-                f"for mesh {mesh} {kind}."
-            )
+    # Initialize containers for kinematic, coupling, and elastic
+    kinematic_list = []
+    coupling_list = []
+    elastic_list = []
+    elastic_velocity_list = []
 
-        if has_coupling_limit:
-            rates.append(
-                _coupling_component(
-                    model,
-                    mesh,
-                    kind,
-                    rotation,
-                    operators,
-                    lower=coupling_limit.lower,
-                    upper=coupling_limit.upper,
-                )
-            )
+    # Process each slip type
+    for slip_type_idx, kind in enumerate(["strike_slip", "dip_slip"]):
+        idx = DIRECTION_IDX[kind]
+
+        if kind == "strike_slip":
+            coupling_limit = coupling_limit_ss
+            rate_limit = rate_limit_ss
+            has_coupling = has_coupling_ss
+            has_rate_limit = has_rate_limit_ss
         else:
-            rates.append(
-                _elastic_component(
+            coupling_limit = coupling_limit_ds
+            rate_limit = rate_limit_ds
+            has_coupling = has_coupling_ds
+            has_rate_limit = has_rate_limit_ds
+
+        if has_coupling:
+            # Coupling component
+            if mesh not in operators.rotation_to_tri_slip_rate:
+                raise ValueError(
+                    f"Mesh {mesh} does not have well defined kinematic slip rates. "
+                    "Coupling constraints cannot be used."
+                )
+
+            operator = operators.rotation_to_tri_slip_rate[mesh][idx, :]
+            kinematic = _operator_mult(operator, rotation)
+            kinematic_list.append(kinematic)
+
+            eigenvectors, _ = _get_eigen_modes(
+                model,
+                mesh,
+                kind,
+                operators,
+                out_idx=idx,
+            )
+            n_eigs = eigenvectors.shape[1]
+            assert coupling_coefs is not None
+            coefs = coupling_coefs[mesh, slip_type_idx, :n_eigs]
+
+            coupling_field = _operator_mult(eigenvectors, coefs)
+            coupling_field = _constrain_field(
+                coupling_field, coupling_limit.lower, coupling_limit.upper
+            )
+            coupling_list.append(coupling_field)
+
+            elastic = kinematic * coupling_field
+            elastic_list.append(elastic)
+
+            elastic_velocity = _station_vel_from_elastic_mesh(
+                model,
+                mesh,
+                kind,
+                elastic,
+                operators,
+            )
+            elastic_velocity_list.append(elastic_velocity)
+
+        elif has_rate_limit:
+            # Elastic component
+            eigenvectors, to_velocity = _get_eigen_modes(
+                model,
+                mesh,
+                kind,
+                operators,
+                out_idx=idx,
+            )
+            n_eigs = eigenvectors.shape[1]
+            assert elastic_eigen is not None
+            param = elastic_eigen[mesh, slip_type_idx, :n_eigs]
+
+            elastic = _constrain_field(
+                _operator_mult(eigenvectors, param), rate_limit.lower, rate_limit.upper
+            )
+            elastic_list.append(elastic)
+
+            if rate_limit.lower is None and rate_limit.upper is None:
+                elastic_velocity = _operator_mult(to_velocity, param)
+                elastic_velocity = pt.concatenate(
+                    [
+                        elastic_velocity.reshape((len(model.station), 2)),
+                        np.zeros((len(model.station), 1)),
+                    ],
+                    axis=-1,
+                ).ravel()
+            else:
+                elastic_velocity = _station_vel_from_elastic_mesh(
                     model,
                     mesh,
                     kind,
-                    rotation,
+                    elastic,
                     operators,
-                    lower=rate_limit.lower,
-                    upper=rate_limit.upper,
                 )
-            )
-    return sum(rates)
+            elastic_velocity_list.append(elastic_velocity)
+
+    # Return values to be collected and stacked in _build_pymc_model
+    # Ensure all arrays have shape (2, n_tde) by padding with zeros for unused slip types
+    kinematic_stacked = None
+    coupling_stacked = None
+    elastic_stacked = None
+    
+    if kinematic_list:
+        # Ensure we have exactly 2 elements (one for each slip type)
+        # If only one slip type is used, pad with zeros
+        if len(kinematic_list) == 1:
+            # Add a zero array for the missing slip type
+            # Determine which slip type is missing based on which constraints are set
+            if has_coupling_ss and not has_coupling_ds:
+                # Only strike_slip, add zeros for dip_slip
+                zero_kinematic = pt.zeros_like(kinematic_list[0])
+                kinematic_list.append(zero_kinematic)
+            elif has_coupling_ds and not has_coupling_ss:
+                # Only dip_slip, add zeros for strike_slip
+                zero_kinematic = pt.zeros_like(kinematic_list[0])
+                kinematic_list.insert(0, zero_kinematic)
+        # Stack kinematic rates: shape will be (2, n_tde) for strike_slip and dip_slip
+        kinematic_stacked = pt.stack(kinematic_list, axis=0)
+
+    if coupling_list:
+        # Ensure we have exactly 2 elements
+        if len(coupling_list) == 1:
+            if has_coupling_ss and not has_coupling_ds:
+                zero_coupling = pt.zeros_like(coupling_list[0])
+                coupling_list.append(zero_coupling)
+            elif has_coupling_ds and not has_coupling_ss:
+                zero_coupling = pt.zeros_like(coupling_list[0])
+                coupling_list.insert(0, zero_coupling)
+        coupling_stacked = pt.stack(coupling_list, axis=0)
+
+    if elastic_list:
+        # Ensure we have exactly 2 elements
+        if len(elastic_list) == 1:
+            # Determine which slip type is missing
+            if (has_coupling_ss or has_rate_limit_ss) and not (has_coupling_ds or has_rate_limit_ds):
+                # Only strike_slip, add zeros for dip_slip
+                zero_elastic = pt.zeros_like(elastic_list[0])
+                elastic_list.append(zero_elastic)
+            elif (has_coupling_ds or has_rate_limit_ds) and not (has_coupling_ss or has_rate_limit_ss):
+                # Only dip_slip, add zeros for strike_slip
+                zero_elastic = pt.zeros_like(elastic_list[0])
+                elastic_list.insert(0, zero_elastic)
+        elastic_stacked = pt.stack(elastic_list, axis=0)
+
+    # Sum elastic velocities for station likelihood
+    # This should always have at least one element since we process both slip types
+    elastic_velocity = sum(elastic_velocity_list)
+    
+    return {
+        "kinematic": kinematic_stacked,
+        "coupling": coupling_stacked,
+        "elastic": elastic_stacked,
+        "elastic_velocity": elastic_velocity,
+    }
 
 
 def _add_block_strain_rate_component(operators: Operators):
@@ -475,19 +501,30 @@ def _add_segment_constraints(model: Model, operators: Operators, rotation):
     segment_rates = _operator_mult(operators.rotation_to_slip_rate, rotation)
     segment_rates = segment_rates.reshape((-1, 3))
 
+    # Define slip type coordinates (must match coords in _build_pymc_model)
+    slip_type_coords = ["strike_slip", "dip_slip", "tensile_slip"]
+    abbrev_map = {
+        "strike_slip": "ss",
+        "dip_slip": "ds",
+        "tensile_slip": "ts",
+    }
+
     # Regularization towards zero slip rate
     gamma = model.config.segment_slip_rate_regularization_sigma
     if gamma is not None:
-        for i, kind in enumerate(["ss", "ds", "ts"]):
+        for i, slip_type in enumerate(slip_type_coords):
+            abbrev = abbrev_map[slip_type]
             pm.StudentT(
-                f"segment_slip_rate_regularization_{kind}",
-                mu=segment_rates[(model.segment[f"{kind}_rate_flag"] == 2).values, i],
+                f"segment_slip_rate_regularization_{abbrev}",
+                mu=segment_rates[
+                    (model.segment[f"{abbrev}_rate_flag"] == 2).values, i
+                ],
                 sigma=gamma,
                 nu=5,
-                observed=np.zeros((model.segment[f"{kind}_rate_flag"] == 2).sum()),
+                observed=np.zeros((model.segment[f"{abbrev}_rate_flag"] == 2).sum()),
             )
 
-    pm.Deterministic("segment_slip_rate", segment_rates, dims=("segment", "ss_ds_ts"))
+    pm.Deterministic("segment_slip_rate", segment_rates, dims=("segment", "slip_type"))
 
     # Slip rate observations
     for comp, flag_attr, rate_attr, sig_attr in [
@@ -499,12 +536,10 @@ def _add_segment_constraints(model: Model, operators: Operators, rotation):
         if np.any(flags):
             observed_rates = getattr(model.segment, rate_attr).values[flags == 1]
             observed_sigs = getattr(model.segment, sig_attr).values[flags == 1]
+            comp_idx = slip_type_coords.index(comp)
             pm.Normal(
                 f"segment_{comp}_velocity",
-                mu=segment_rates[
-                    flags == 1,
-                    ["strike_slip", "dip_slip", "tensile_slip"].index(comp),
-                ],
+                mu=segment_rates[flags == 1, comp_idx],
                 sigma=observed_sigs,
                 observed=observed_rates,
             )
@@ -535,13 +570,11 @@ def _add_segment_constraints(model: Model, operators: Operators, rotation):
             lower_bounds = getattr(model.segment, lower_attr).values[bound_flags == 1]
             upper_bounds = getattr(model.segment, upper_attr).values[bound_flags == 1]
             bound_sig = model.config.segment_slip_rate_bound_sigma
+            comp_idx = slip_type_coords.index(comp)
             pm.Censored(
                 f"segment_{comp}_slip_rate_lower_bound",
                 dist=pm.Normal.dist(
-                    mu=segment_rates[
-                        bound_flags == 1,
-                        ["strike_slip", "dip_slip", "tensile_slip"].index(comp),
-                    ],
+                    mu=segment_rates[bound_flags == 1, comp_idx],
                     sigma=bound_sig,
                 ),
                 upper=lower_bounds,
@@ -552,10 +585,7 @@ def _add_segment_constraints(model: Model, operators: Operators, rotation):
             pm.Censored(
                 f"segment_{comp}_slip_rate_upper_bound",
                 dist=pm.Normal.dist(
-                    mu=segment_rates[
-                        bound_flags == 1,
-                        ["strike_slip", "dip_slip", "tensile_slip"].index(comp),
-                    ],
+                    mu=segment_rates[bound_flags == 1, comp_idx],
                     sigma=bound_sig,
                 ),
                 upper=None,
@@ -574,6 +604,18 @@ def _build_pymc_model(model: Model, operators: Operators) -> PymcModel:
     assert operators.tde is not None
 
     import pymc as pm
+    import pytensor.tensor as pt
+
+    # Calculate maximum number of eigenmodes across all meshes and slip types
+    max_n_eigenmodes = 0
+    max_n_tde = 0
+    for mesh in model.meshes:
+        max_n_eigenmodes = max(
+            max_n_eigenmodes,
+            mesh.config.n_modes_strike_slip,
+            mesh.config.n_modes_dip_slip,
+        )
+        max_n_tde = max(max_n_tde, mesh.n_tde)
 
     coords = {
         "block_strain_rate_param": pd.RangeIndex(
@@ -588,7 +630,10 @@ def _build_pymc_model(model: Model, operators: Operators) -> PymcModel:
         "segment": model.segment.index,
         "xyz": pd.Index(["x", "y", "z"]),
         "xy": pd.Index(["x", "y"]),
-        "ss_ds_ts": pd.Index(["strike_slip", "dip_slip", "tensile_slip"]),
+        "slip_type": pd.Index(["strike_slip", "dip_slip", "tensile_slip"]),
+        "eigenmode": pd.RangeIndex(max_n_eigenmodes),
+        "mesh": pd.RangeIndex(len(model.meshes)),
+        "tde": pd.RangeIndex(max_n_tde),
     }
 
     with pm.Model(coords=coords) as pymc_model:
@@ -599,10 +644,131 @@ def _build_pymc_model(model: Model, operators: Operators) -> PymcModel:
         )
         mogi_velocity = _add_mogi_component(operators)
 
-        # Add elastic velocity from meshes
+        # Check which meshes need coupling vs elastic variables
+        needs_coupling = []
+        needs_elastic = []
+        for mesh_idx, mesh in enumerate(model.meshes):
+            has_coupling_ss = (
+                mesh.config.coupling_constraints_ss.lower is not None
+                or mesh.config.coupling_constraints_ss.upper is not None
+            )
+            has_coupling_ds = (
+                mesh.config.coupling_constraints_ds.lower is not None
+                or mesh.config.coupling_constraints_ds.upper is not None
+            )
+            has_rate_limit_ss = (
+                mesh.config.elastic_constraints_ss.lower is not None
+                or mesh.config.elastic_constraints_ss.upper is not None
+            )
+            has_rate_limit_ds = (
+                mesh.config.elastic_constraints_ds.lower is not None
+                or mesh.config.elastic_constraints_ds.upper is not None
+            )
+            if has_coupling_ss or has_coupling_ds:
+                needs_coupling.append(mesh_idx)
+            if has_rate_limit_ss or has_rate_limit_ds:
+                needs_elastic.append(mesh_idx)
+
+        # Create shared variables with mesh dimension
+        coupling_coefs = None
+        if needs_coupling:
+            coupling_coefs = pm.Normal(
+                "coupling_coefs",
+                mu=0,
+                sigma=10,
+                dims=("mesh", "slip_type", "eigenmode"),
+            )
+
+        elastic_eigen_raw = None
+        elastic_eigen = None
+        if needs_elastic:
+            # Calculate scale
+            scale = 0.0
+            for op in operators.eigen.eigen_to_velocities.values():
+                scale += (op**2).mean()
+            scale = scale / len(operators.eigen.eigen_to_velocities)
+            scale = 1 / np.sqrt(scale)
+
+            elastic_eigen_raw = pm.Normal(
+                "elastic_eigen_raw",
+                dims=("mesh", "slip_type", "eigenmode"),
+            )
+            elastic_eigen = pm.Deterministic(
+                "elastic_eigen",
+                scale * elastic_eigen_raw,
+                dims=("mesh", "slip_type", "eigenmode"),
+            )
+
+        # Collect kinematic, coupling, and elastic from all meshes
+        all_kinematic = []
+        all_coupling = []
+        all_elastic = []
         elastic_velocities = []
+        
         for key, _ in enumerate(model.meshes):
-            elastic_velocities.append(_mesh_component(model, key, rotation, operators))
+            result = _mesh_component(
+                model,
+                key,
+                rotation,
+                operators,
+                coupling_coefs,
+                elastic_eigen,
+            )
+            elastic_velocities.append(result["elastic_velocity"])
+            if result["kinematic"] is not None:
+                all_kinematic.append((key, result["kinematic"]))
+            if result["coupling"] is not None:
+                all_coupling.append((key, result["coupling"]))
+            if result["elastic"] is not None:
+                all_elastic.append((key, result["elastic"]))
+        
+        # Create shared Deterministic variables with mesh dimension
+        # Note: We need to handle variable n_tde per mesh
+        # Pad to max_n_tde when needed to ensure all arrays have shape (2, max_n_tde)
+        if all_kinematic:
+            # Stack all kinematic values, padding to max_n_tde
+            kinematic_padded = []
+            for mesh_idx, kinematic in all_kinematic:
+                n_tde = model.meshes[mesh_idx].n_tde
+                # Always ensure shape is exactly (2, max_n_tde)
+                if n_tde < max_n_tde:
+                    padding = pt.zeros((2, max_n_tde - n_tde))
+                    padded = pt.concatenate([kinematic, padding], axis=1)
+                elif n_tde == max_n_tde:
+                    padded = kinematic
+                else:
+                    # Shouldn't happen, but handle it
+                    padded = kinematic
+                kinematic_padded.append(padded)
+            kinematic_stacked = pt.stack(kinematic_padded, axis=0)
+            pm.Deterministic("kinematic", kinematic_stacked, dims=("mesh", "slip_type", "tde"))
+        
+        if all_coupling:
+            coupling_padded = []
+            for mesh_idx, coupling in all_coupling:
+                n_tde = model.meshes[mesh_idx].n_tde
+                if n_tde < max_n_tde:
+                    padding = pt.zeros((2, max_n_tde - n_tde))
+                    padded = pt.concatenate([coupling, padding], axis=1)
+                    coupling_padded.append(padded)
+                else:
+                    coupling_padded.append(coupling)
+            coupling_stacked = pt.stack(coupling_padded, axis=0)
+            pm.Deterministic("coupling", coupling_stacked, dims=("mesh", "slip_type", "tde"))
+        
+        if all_elastic:
+            elastic_padded = []
+            for mesh_idx, elastic in all_elastic:
+                n_tde = model.meshes[mesh_idx].n_tde
+                if n_tde < max_n_tde:
+                    padding = pt.zeros((2, max_n_tde - n_tde))
+                    padded = pt.concatenate([elastic, padding], axis=1)
+                    elastic_padded.append(padded)
+                else:
+                    elastic_padded.append(elastic)
+            elastic_stacked = pt.stack(elastic_padded, axis=0)
+            pm.Deterministic("elastic", elastic_stacked, dims=("mesh", "slip_type", "tde"))
+        
         elastic_velocity = sum(elastic_velocities)
 
         # Combine all velocity components
