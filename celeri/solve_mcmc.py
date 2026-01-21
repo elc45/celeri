@@ -107,8 +107,14 @@ def _station_vel_from_elastic_mesh(
     kind: Literal["strike_slip", "dip_slip"],
     elastic,
     operators: Operators,
+    eigen_coefs=None,
+    upper: float | None = None,
+    lower: float | None = None,
 ):
-    """Compute elastic velocity at stations from slip rates on a mesh.
+    """Compute elastic velocity at stations from slip rates on a mesh. 
+    If elastic velocity is a linear function of them, compute velocity directly 
+    from coefficients. Else, compute according to the configured method (direct, 
+    low_rank, or project_to_eigen).
 
     Parameters
     ----------
@@ -122,6 +128,15 @@ def _station_vel_from_elastic_mesh(
         Elastic slip rates on the mesh
     operators : Operators
         Operators containing TDE and eigen information
+    eigen_coefs : array
+        The eigenmode coefficients to be used in the direct eigenmode-to-velocity 
+        _operator_mult call if there are no upper or lower bounds.
+        (_operator_mult is more efficient when elastic slip is just a linear function of 
+        eigenmode coefficients.)
+    upper : float | None, optional
+        Upper bound for the elastic slip rates.
+    lower : float | None, optional
+        Lower bound for the elastic slip rates.
 
     Returns
     -------
@@ -143,6 +158,25 @@ def _station_vel_from_elastic_mesh(
             "or rebuild operators with discard_tde_to_velocities=False."
         )
 
+    if upper is None and lower is None:
+        assert operators.eigen is not None
+        to_velocity = _get_eigen_to_velocity(
+            model,
+            mesh_idx,
+            kind,
+            operators,
+        )
+        elastic_velocity = _operator_mult(to_velocity, eigen_coefs)
+
+        elastic_velocity = pt.concatenate(
+            [
+                elastic_velocity.reshape((len(model.station), 2)),
+                np.zeros((len(model.station), 1)),
+            ],
+            axis=-1,
+        ).ravel()  # type: ignore[attr-defined]
+        return elastic_velocity
+
     if method == "low_rank":
         to_station = operators.tde.tde_to_velocities[mesh_idx][:, idx.start : None : 3]
         u, s, vh = linalg.svd(to_station, full_matrices=False)
@@ -153,6 +187,7 @@ def _station_vel_from_elastic_mesh(
         vh = vh[mask, :].astype("f")
         elastic_velocity = _operator_mult(-u * s, _operator_mult(vh, elastic))
         return elastic_velocity.astype("d")
+
     elif method == "project_to_eigen":
         assert operators.eigen is not None
         to_velocity = _get_eigen_to_velocity(
@@ -178,10 +213,12 @@ def _station_vel_from_elastic_mesh(
             axis=-1,
         ).ravel()  # type: ignore[attr-defined]
         return elastic_velocity
+
     elif method == "direct":
         to_station = operators.tde.tde_to_velocities[mesh_idx][:, idx.start : None : 3]
         elastic_velocity = _operator_mult(-to_station, elastic)
         return elastic_velocity
+
     else:
         raise ValueError(
             f"Unknown mcmc_station_velocity_method: {method}. "
@@ -222,9 +259,9 @@ def _coupling_component(
 
     eigenvectors = _get_eigenmodes(model, mesh_idx, kind)
     n_eigs = eigenvectors.shape[1]
-    coefs = pm.Normal(f"coupling_coefs_{mesh_idx}_{kind_short}", mu=0, sigma=10, shape=n_eigs)
+    eigen_coefs = pm.Normal(f"coupling_coefs_{mesh_idx}_{kind_short}", mu=0, sigma=10, shape=n_eigs)
 
-    coupling_field = _operator_mult(eigenvectors, coefs)
+    coupling_field = _operator_mult(eigenvectors, eigen_coefs)
     softplus_lengthscale = model.meshes[mesh_idx].config.softplus_lengthscale
     coupling_field = _constrain_field(coupling_field, lower, upper, softplus_lengthscale)
     pm.Deterministic(f"coupling_{mesh_idx}_{kind_short}", coupling_field)
@@ -237,6 +274,9 @@ def _coupling_component(
         kind,
         elastic_tde,
         operators,
+        eigen_coefs=eigen_coefs,
+        upper=upper,
+        lower=lower,
     )
     return elastic_tde, station_vels.astype("d")
 
@@ -261,7 +301,6 @@ def _elastic_component(
     assert operators.tde is not None
 
     import pymc as pm
-    import pytensor.tensor as pt
     kind_short = {"strike_slip": "ss", "dip_slip": "ds"}[kind]
     idx = DIRECTION_IDX[kind]
 
@@ -273,41 +312,24 @@ def _elastic_component(
     scale = 1 / np.sqrt(scale)
 
     eigenvectors = _get_eigenmodes(model, mesh_idx, kind)
-    to_velocity = _get_eigen_to_velocity(
-        model,
-        mesh_idx,
-        kind,
-        operators,
-    )
     n_eigs = eigenvectors.shape[1]
 
     raw = pm.Normal(f"elastic_eigen_raw_{mesh_idx}_{kind_short}", shape=n_eigs)
-    param = pm.Deterministic(f"elastic_eigen_{mesh_idx}_{kind_short}", scale * raw)
+    eigen_coefs = pm.Deterministic(f"elastic_eigen_{mesh_idx}_{kind_short}", scale * raw)
     softplus_lengthscale = model.meshes[mesh_idx].config.softplus_lengthscale
-    elastic_tde = _constrain_field(_operator_mult(eigenvectors, param), lower, upper, softplus_lengthscale)
+    elastic_tde = _constrain_field(_operator_mult(eigenvectors, eigen_coefs), lower, upper, softplus_lengthscale)
     pm.Deterministic(f"elastic_{mesh_idx}_{kind_short}", elastic_tde)
 
-    # Compute elastic velocity at stations. The operator already
-    # includes a negative sign.
-    if lower is None and upper is None:
-        station_vels = _operator_mult(to_velocity, param)
-        # We need to return a station velocity for all three components,
-        # not just north and east.
-        station_vels = pt.concatenate(
-            [
-                station_vels.reshape((len(model.station), 2)),
-                np.zeros((len(model.station), 1)),
-            ],
-            axis=-1,
-        ).ravel()  # type: ignore[attr-defined]
-    else:
-        station_vels = _station_vel_from_elastic_mesh(
-            model,
-            mesh_idx,
-            kind,
-            elastic_tde,
-            operators,
-        )
+    station_vels = _station_vel_from_elastic_mesh(
+        model,
+        mesh_idx,
+        kind,
+        elastic_tde,
+        operators,
+        eigen_coefs=eigen_coefs,
+        upper=upper,
+        lower=lower,
+    )
 
     return elastic_tde, station_vels
 
