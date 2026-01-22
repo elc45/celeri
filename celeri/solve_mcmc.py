@@ -107,9 +107,10 @@ def _station_vel_from_elastic_mesh(
     kind: Literal["strike_slip", "dip_slip"],
     elastic,
     operators: Operators,
-    eigen_coefs=None,
+    eigen_coefs,
     upper: float | None = None,
     lower: float | None = None,
+    bound_type: Literal["elastic", "coupling"] = "elastic",
 ):
     """Compute elastic velocity at stations from slip rates on a mesh. 
     If elastic velocity is a linear function of them, compute velocity directly 
@@ -137,6 +138,8 @@ def _station_vel_from_elastic_mesh(
         Upper bound for the elastic slip rates.
     lower : float | None, optional
         Lower bound for the elastic slip rates.
+    bound_type : Literal["elastic", "coupling"]
+        The type of bound to apply to the elastic slip rates.
 
     Returns
     -------
@@ -158,7 +161,7 @@ def _station_vel_from_elastic_mesh(
             "or rebuild operators with discard_tde_to_velocities=False."
         )
 
-    if upper is None and lower is None:
+    if upper is None and lower is None and bound_type == "elastic":
         assert operators.eigen is not None
         to_velocity = _get_eigen_to_velocity(
             model,
@@ -277,6 +280,7 @@ def _coupling_component(
         eigen_coefs=eigen_coefs,
         upper=upper,
         lower=lower,
+        bound_type="coupling",
     )
     return elastic_tde, station_vels.astype("d")
 
@@ -329,6 +333,7 @@ def _elastic_component(
         eigen_coefs=eigen_coefs,
         upper=upper,
         lower=lower,
+        bound_type="elastic",
     )
 
     return elastic_tde, station_vels
